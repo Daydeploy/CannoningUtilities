@@ -1,0 +1,30 @@
+{
+  "schemaVersion": 1,
+  "id": "cannoningutilities",
+  "version": "${version}",
+
+  "name": "CannoningUtilities",
+  "description": "",
+  "authors": [],
+  "contact": {},
+
+  "license": "LGPL-3.0",
+  "icon": "assets/cannoningutilities/icon.png",
+
+  "environment": "*",
+  "entrypoints": {
+    "client": [
+      "me.day.cannoningutilities.CannoningUtilities"
+    ]
+  },
+
+  "mixins": [
+    "cannoningutilities.mixins.json"
+  ],
+
+  "depends": {
+    "fabricloader": ">=${loader_version}",
+    "fabric-api": "*",
+    "minecraft": "${minecraft_version}"
+  }
+}
