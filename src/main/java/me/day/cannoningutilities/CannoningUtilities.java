@@ -6,7 +6,7 @@ import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.rendering.v1.world.WorldRenderContext;
 import net.fabricmc.fabric.api.client.rendering.v1.world.WorldRenderEvents;
-import net.minecraft.client.renderer.rendertype.RenderType;
+import net.minecraft.client.renderer.rendertype.RenderTypes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,14 +23,16 @@ public class CannoningUtilities implements ClientModInitializer {
             BreadcrumbsTNT.tick();
         });
 
-        WorldRenderEvents.BEFORE_DEBUG_RENDER.register(this::extractBreadcrumbs);
-        WorldRenderEvents.AFTER_ENTITIES.register(this::renderBreadcrumbs);
+        WorldRenderEvents.BEFORE_DEBUG_RENDER.register(this::renderBreadcrumbs);
+        WorldRenderEvents.AFTER_ENTITIES.register(this::extractBreadcrumbs);
     }
 
     private void extractBreadcrumbs(WorldRenderContext context) {
         BreadcrumbsTNT.extractBreadcrumbs();
     }
+
     private void renderBreadcrumbs(WorldRenderContext context) {
         var mesh = BreadcrumbsTNT.buildBreadcrumbs();
+        if (mesh != null) RenderTypes.lines().draw(mesh);
     }
 }

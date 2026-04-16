@@ -23,6 +23,7 @@ public class TrackedEntity {
         this.crumbs = Collections.synchronizedList(new ArrayList<>());
         this.expiryTime = System.currentTimeMillis() + (Settings.REMOVAL_TIME_SECONDS * 1000L);
         this.startPosition = entity.position();
+        this.crumbs.add(new Crumb(entity.position(), System.nanoTime()));
     }
 
     public void addCrumb(Vec3 position) {

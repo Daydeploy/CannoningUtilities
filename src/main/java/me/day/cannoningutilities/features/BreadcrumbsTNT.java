@@ -72,7 +72,7 @@ public class BreadcrumbsTNT {
                 TrackedEntity trackedEntity = trackedEntities.computeIfAbsent(id, x -> new TrackedEntity(entity));
 
                 Vec3 position = entity.position();
-                if (trackedEntity.crumbs.getLast().position().equals(position)) {
+                if (!trackedEntity.crumbs.getLast().position().equals(position)) {
                     trackedEntity.addCrumb(position);
                 }
             }
