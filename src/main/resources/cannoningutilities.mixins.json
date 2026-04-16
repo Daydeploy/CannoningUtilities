@@ -3,9 +3,9 @@
   "minVersion": "0.8",
   "package": "me.day.cannoningutilities.mixin",
   "compatibilityLevel": "JAVA_21",
-  "mixins": [
-  ],
   "client": [
+    "ClientLevelMixin",
+    "LevelRendererMixin"
   ],
   "injectors": {
     "defaultRequire": 1

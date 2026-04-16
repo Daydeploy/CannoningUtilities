@@ -20,6 +20,7 @@ repositories {
     // for more information about repositories.
     maven { url 'https://repo.polyfrost.org/releases' }
     maven { url 'https://repo.polyfrost.org/snapshots' }
+    maven { url 'https://pkgs.dev.azure.com/djtheredstoner/DevAuth/_packaging/public/maven/v1' }
 }
 
 dependencies {
@@ -29,6 +30,8 @@ dependencies {
     modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
 
     modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
+
+    modRuntimeOnly("me.djtheredstoner:DevAuth-fabric:1.2.2")
 
     def oneConfigModules = ["commands", "config-impl", "events", "hud", "internal", "ui", "utils"]
 
