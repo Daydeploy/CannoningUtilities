@@ -12,7 +12,7 @@ public class Settings extends Config {
     public static final Settings INSTANCE = new Settings();
     @Switch(title = "Enabled", description = "Toggle Cannoning Utilities on/off", category = "", subcategory = "Breadcrumbs Options")
     public static boolean ENABLED = false;
-    @Slider(title = "Removal Time", description = "Time in seconds before breadcrumbs are removed", category = "", subcategory = "Breadcrumbs Options", min = 0F, max = 60F, step = 1F)
+    @Slider(title = "Removal Time", description = "Time in seconds before breadcrumbs are removed", category = "", subcategory = "Breadcrumbs Options", max = 30F, step = 1F)
     public static int REMOVAL_TIME_SECONDS = 0;
     @Number(title = "Line Width", description = "Width of the breadcrumbs tracer", category = "", subcategory = "Breadcrumbs Options", min = 0F, max = 10F)
     public static int LINE_WIDTH = 1;
