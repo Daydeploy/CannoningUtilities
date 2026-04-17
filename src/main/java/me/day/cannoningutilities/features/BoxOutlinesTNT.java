@@ -3,6 +3,7 @@ package me.day.cannoningutilities.features;
 import me.day.cannoningutilities.config.Settings;
 import me.day.cannoningutilities.utils.BoxOutlineGizmo;
 import net.minecraft.client.Minecraft;
+import net.minecraft.gizmos.GizmoProperties;
 import net.minecraft.gizmos.Gizmos;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
@@ -23,7 +24,8 @@ public class BoxOutlinesTNT {
                 double z = Mth.lerp(delta, entity.zo, entity.getZ()) - entity.getZ();
 
                 AABB box = entity.getBoundingBox().move(x, y, z);
-                Gizmos.addGizmo(new BoxOutlineGizmo(box, 0xFF00FFCC)).setAlwaysOnTop();
+                GizmoProperties gizmo = Gizmos.addGizmo(new BoxOutlineGizmo(box, 0xFF00FFCC));
+                if (Settings.DEPTH) gizmo.setAlwaysOnTop();
             }
         }
     }

@@ -16,7 +16,7 @@ public class Settings extends Config {
     public static int REMOVAL_TIME_SECONDS = 0;
     @Number(title = "Line Width", description = "Width of the breadcrumbs tracer", category = "", subcategory = "Breadcrumbs Options", min = 0F, max = 10F)
     public static int LINE_WIDTH = 1;
-    @Switch(title = "Depth", description = "", category = "", subcategory = "Breadcrumbs Options")
+    @Switch(title = "Depth", description = "Toggle depth testing on/off", category = "", subcategory = "Breadcrumbs Options")
     public static boolean DEPTH = false;
     @Switch(title = "Display", description = "Toggle breadcrumbs on/off", category = "", subcategory = "Breadcrumbs Options")
     public static boolean RENDER_CRUMBS = false;

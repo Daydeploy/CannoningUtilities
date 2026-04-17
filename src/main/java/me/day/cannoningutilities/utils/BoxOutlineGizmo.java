@@ -1,36 +1,27 @@
 package me.day.cannoningutilities.utils;
 
+import me.day.cannoningutilities.config.Settings;
 import net.minecraft.gizmos.Gizmo;
 import net.minecraft.gizmos.GizmoPrimitives;
 import net.minecraft.util.ARGB;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
+import org.jspecify.annotations.NonNull;
 
 public record BoxOutlineGizmo(AABB box, int color) implements Gizmo {
     @Override
-    public void emit(GizmoPrimitives gizmo, float factor) {
+    public void emit(@NonNull GizmoPrimitives gizmo, float factor) {
         int finalColor = ARGB.multiplyAlpha(color, factor);
 
-        float minX = (float) box.minX;
-        float minY = (float) box.minY;
-        float minZ = (float) box.minZ;
-        float maxX = (float) box.maxX;
-        float maxY = (float) box.maxY;
-        float maxZ = (float) box.maxZ;
+        Vec3[] corners = {new Vec3(box.minX, box.minY, box.minZ), new Vec3(box.maxX, box.minY, box.minZ), new Vec3(box.maxX, box.minY, box.maxZ), new Vec3(box.minX, box.minY, box.maxZ), new Vec3(box.minX, box.maxY, box.minZ), new Vec3(box.maxX, box.maxY, box.minZ), new Vec3(box.maxX, box.maxY, box.maxZ), new Vec3(box.minX, box.maxY, box.maxZ)};
 
-        gizmo.addLine(new Vec3(minX, minY, minZ), new Vec3(maxX, minY, minZ), finalColor, 2.0F);
-        gizmo.addLine(new Vec3(maxX, minY, minZ), new Vec3(maxX, minY, maxZ), finalColor, 2.0F);
-        gizmo.addLine(new Vec3(maxX, minY, maxZ), new Vec3(minX, minY, maxZ), finalColor, 2.0F);
-        gizmo.addLine(new Vec3(minX, minY, maxZ), new Vec3(minX, minY, minZ), finalColor, 2.0F);
+        for (int i = 0; i < 4; i++)
+            gizmo.addLine(corners[i], corners[(i + 1) % 4], finalColor, Settings.LINE_WIDTH);
 
-        gizmo.addLine(new Vec3(minX, maxY, minZ), new Vec3(maxX, maxY, minZ), finalColor, 2.0F);
-        gizmo.addLine(new Vec3(maxX, maxY, minZ), new Vec3(maxX, maxY, maxZ), finalColor, 2.0F);
-        gizmo.addLine(new Vec3(maxX, maxY, maxZ), new Vec3(minX, maxY, maxZ), finalColor, 2.0F);
-        gizmo.addLine(new Vec3(minX, maxY, maxZ), new Vec3(minX, maxY, minZ), finalColor, 2.0F);
+        for (int i = 4; i < 8; i++)
+            gizmo.addLine(corners[i], corners[4 + ((i + 1) % 4)], finalColor, Settings.LINE_WIDTH);
 
-        gizmo.addLine(new Vec3(minX, minY, minZ), new Vec3(minX, maxY, minZ), finalColor, 2.0F);
-        gizmo.addLine(new Vec3(maxX, minY, minZ), new Vec3(maxX, maxY, minZ), finalColor, 2.0F);
-        gizmo.addLine(new Vec3(maxX, minY, maxZ), new Vec3(maxX, maxY, maxZ), finalColor, 2.0F);
-        gizmo.addLine(new Vec3(minX, minY, maxZ), new Vec3(minX, maxY, maxZ), finalColor, 2.0F);
+        for (int i = 0; i < 4; i++)
+            gizmo.addLine(corners[i], corners[i + 4], finalColor, Settings.LINE_WIDTH);
     }
 }

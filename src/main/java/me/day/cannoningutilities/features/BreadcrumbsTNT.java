@@ -4,15 +4,12 @@ import me.day.cannoningutilities.config.Settings;
 import me.day.cannoningutilities.utils.TrackedEntity;
 import me.day.cannoningutilities.utils.TrackedEntityGizmo;
 import net.minecraft.client.Minecraft;
-import net.minecraft.gizmos.Gizmo;
-import net.minecraft.gizmos.GizmoPrimitives;
+import net.minecraft.gizmos.GizmoProperties;
 import net.minecraft.gizmos.Gizmos;
-import net.minecraft.util.ARGB;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.item.FallingBlockEntity;
 import net.minecraft.world.entity.item.PrimedTnt;
 import net.minecraft.world.phys.Vec3;
-import org.jspecify.annotations.NonNull;
 
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
@@ -50,7 +47,8 @@ public class BreadcrumbsTNT {
         for (TrackedEntity entity : entities.values()) {
             if (entity.crumbs.size() < 2) continue;
 
-            Gizmos.addGizmo(new TrackedEntityGizmo(entity)).setAlwaysOnTop();
+            GizmoProperties gizmo = Gizmos.addGizmo(new TrackedEntityGizmo(entity));
+            if (Settings.DEPTH) gizmo.setAlwaysOnTop();
         }
     }
 }

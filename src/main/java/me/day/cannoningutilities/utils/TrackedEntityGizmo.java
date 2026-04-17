@@ -1,5 +1,6 @@
 package me.day.cannoningutilities.utils;
 
+import me.day.cannoningutilities.config.Settings;
 import net.minecraft.gizmos.Gizmo;
 import net.minecraft.gizmos.GizmoPrimitives;
 import net.minecraft.util.ARGB;
@@ -19,7 +20,7 @@ public record TrackedEntityGizmo(TrackedEntity entity) implements Gizmo {
             Vec3 start = entity.crumbs.get(i).position();
             Vec3 end = entity.crumbs.get(i + 1).position();
 
-            gizmo.addLine(start, end, color, 2.0F);
+            gizmo.addLine(start, end, color, Settings.LINE_WIDTH);
         }
     }
 }
