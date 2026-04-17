@@ -1,15 +1,17 @@
 package me.day.cannoningutilities.features;
 
+import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
 import me.day.cannoningutilities.config.Settings;
 import me.day.cannoningutilities.utils.Crumb;
 import me.day.cannoningutilities.utils.TrackedEntity;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.CoreShaders;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.item.FallingBlockEntity;
 import net.minecraft.world.entity.item.PrimedTnt;
 import net.minecraft.world.phys.Vec3;
-import org.jspecify.annotations.Nullable;
+import org.joml.Matrix4f;
 
 import java.util.Map;
 import java.util.UUID;
@@ -19,39 +21,6 @@ import java.util.concurrent.ConcurrentHashMap;
 public class BreadcrumbsTNT {
     private static final Map<UUID, TrackedEntity> trackedEntities = new ConcurrentHashMap<>();
     private static final Minecraft minecraft = Minecraft.getInstance();
-
-    private static @Nullable BufferBuilder breadcrumbBuffer;
-
-    private static void drawMarker(BufferBuilder builder, Vec3 position, float r, float g, float b, double size) {
-        builder.addVertex((float) (position.x - size), (float) position.y, (float) position.z).setColor(r, g, b, 1.0f);
-        builder.addVertex((float) (position.x + size), (float) position.y, (float) position.z).setColor(r, g, b, 1.0f);
-
-        builder.addVertex((float) position.x, (float) (position.y - size), (float) position.z).setColor(r, g, b, 1.0f);
-        builder.addVertex((float) position.x, (float) (position.y + size), (float) position.z).setColor(r, g, b, 1.0f);
-
-        builder.addVertex((float) position.x, (float) position.y, (float) (position.z - size)).setColor(r, g, b, 1.0f);
-        builder.addVertex((float) position.x, (float) position.y, (float) (position.z + size)).setColor(r, g, b, 1.0f);
-    }
-
-    public static @Nullable MeshData buildBreadcrumbs() {
-        if (breadcrumbBuffer == null) return null;
-
-        MeshData mesh = breadcrumbBuffer.build();
-        breadcrumbBuffer = null;
-        return mesh;
-    }
-
-    public static void clearBreadcrumbs() {
-        trackedEntities.clear();
-    }
-
-    public static int getTrackedEntityCount() {
-        return trackedEntities.size();
-    }
-
-    public static int getTotalTrackedEntityCount() {
-        return trackedEntities.values().stream().mapToInt(t -> t.crumbs.size()).sum();
-    }
 
     public static void tick() {
         if (!Settings.ENABLED) return;
@@ -72,44 +41,69 @@ public class BreadcrumbsTNT {
                 TrackedEntity trackedEntity = trackedEntities.computeIfAbsent(id, x -> new TrackedEntity(entity));
 
                 Vec3 position = entity.position();
-                if (!trackedEntity.crumbs.getLast().position().equals(position)) {
+                if (trackedEntity.crumbs.isEmpty() || !trackedEntity.crumbs.getLast().position().equals(position)) {
                     trackedEntity.addCrumb(position);
                 }
             }
         }
     }
 
-    public static void extractBreadcrumbs() {
+    public static void renderBreadcrumbs(PoseStack poseStack, Vec3 camera) {
         if (!Settings.ENABLED || !Settings.RENDER_CRUMBS || trackedEntities.isEmpty()) return;
 
+        // 1. Setup RenderSystem States
+        RenderSystem.enableBlend();
+        RenderSystem.defaultBlendFunc();
+        RenderSystem.disableCull();
+        RenderSystem.disableDepthTest();
+        RenderSystem.setShader(CoreShaders.POSITION_COLOR); // Using the updated shader!
+
+        // ---> APPLY LINE WIDTH HERE <---
+        RenderSystem.lineWidth(Settings.LINE_WIDTH);
+
         Tesselator tessellator = Tesselator.getInstance();
-        breadcrumbBuffer = tessellator.begin(VertexFormat.Mode.DEBUG_LINES, DefaultVertexFormat.POSITION_COLOR);
+        BufferBuilder buffer = tessellator.begin(VertexFormat.Mode.DEBUG_LINES, DefaultVertexFormat.POSITION_COLOR);
 
-        Vec3 camera = minecraft.gameRenderer.getMainCamera().position();
+        Matrix4f matrix = poseStack.last().pose();
 
+        // 2. Build the vertices
         for (TrackedEntity trackedEntity : trackedEntities.values()) {
             if (trackedEntity.crumbs.size() < 2) continue;
+
             int color = trackedEntity.getColor();
-            float r = ((color >> 16) & 0xFF) / 255f;
-            float g = ((color >> 8) & 0xFF) / 255f;
-            float b = (color & 0xFF) / 255f;
+            int r = (color >> 16) & 0xFF;
+            int g = (color >> 8) & 0xFF;
+            int b = color & 0xFF;
 
             for (int i = 0; i < trackedEntity.crumbs.size() - 1; i++) {
                 Crumb current = trackedEntity.crumbs.get(i);
                 Crumb next = trackedEntity.crumbs.get(i + 1);
 
-                Vec3 position1 = current.position().subtract(camera);
-                Vec3 position2 = next.position().subtract(camera);
+                float x1 = (float) (current.position().x - camera.x);
+                float y1 = (float) (current.position().y - camera.y);
+                float z1 = (float) (current.position().z - camera.z);
 
-                breadcrumbBuffer.addVertex((float) position1.x, (float) position1.y, (float) position1.z).setColor(r, g, b, 1.0F);
-                breadcrumbBuffer.addVertex((float) position2.x, (float) position2.y, (float) position2.z).setColor(r, g, b, 1.0F);
-            }
-            drawMarker(breadcrumbBuffer, trackedEntity.startPosition.subtract(camera), 0.0F, 1.0F, 0.0F, 0.05);
-            if (!trackedEntity.crumbs.isEmpty()) {
-                Vec3 end = trackedEntity.crumbs.getLast().position().subtract(camera);
-                drawMarker(breadcrumbBuffer, end, 0.0F, 1.0F, 1.0F, 0.05);
-            }
+                float x2 = (float) (next.position().x - camera.x);
+                float y2 = (float) (next.position().y - camera.y);
+                float z2 = (float) (next.position().z - camera.z);
 
+                buffer.addVertex(matrix, x1, y1, z1).setColor(r, g, b, 255);
+                buffer.addVertex(matrix, x2, y2, z2).setColor(r, g, b, 255);
+            }
         }
+
+        // 3. Draw the buffer
+        MeshData mesh = buffer.build();
+        if (mesh != null) {
+            BufferUploader.drawWithShader(mesh);
+        }
+
+        // 4. Cleanup RenderSystem States
+        // ---> RESET LINE WIDTH HERE <---
+        RenderSystem.lineWidth(1.0f);
+
+        RenderSystem.enableDepthTest();
+        RenderSystem.enableCull();
+        RenderSystem.disableBlend();
     }
 }

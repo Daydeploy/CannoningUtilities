@@ -4,8 +4,7 @@
   "package": "me.day.cannoningutilities.mixin",
   "compatibilityLevel": "JAVA_21",
   "client": [
-    "ClientLevelMixin",
-    "LevelRendererMixin"
+    "ClientLevelMixin"
   ],
   "injectors": {
     "defaultRequire": 1
