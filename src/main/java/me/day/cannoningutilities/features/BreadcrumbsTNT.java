@@ -1,11 +1,14 @@
 package me.day.cannoningutilities.features;
 
 import me.day.cannoningutilities.config.Settings;
+import me.day.cannoningutilities.utils.BoxOutlineGizmo;
 import me.day.cannoningutilities.utils.TrackedEntity;
 import me.day.cannoningutilities.utils.TrackedEntityGizmo;
 import net.minecraft.client.Minecraft;
+import net.minecraft.gizmos.Gizmo;
 import net.minecraft.gizmos.GizmoProperties;
 import net.minecraft.gizmos.Gizmos;
+import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.item.FallingBlockEntity;
 import net.minecraft.world.entity.item.PrimedTnt;
@@ -41,14 +44,31 @@ public class BreadcrumbsTNT {
 
     }
 
-    public static void render() {
-        if (!Settings.ENABLED || !Settings.RENDER_CRUMBS || entities.isEmpty()) return;
+    public static void render(float delta) {
+        if (!Settings.ENABLED || minecraft.level == null || entities.isEmpty()) return;
 
-        for (TrackedEntity entity : entities.values()) {
-            if (entity.crumbs.size() < 2) continue;
+        if (Settings.RENDER_CRUMBS) {
+            for (TrackedEntity entity : entities.values()) {
+                if (entity.crumbs.size() < 2) continue;
 
-            GizmoProperties gizmo = Gizmos.addGizmo(new TrackedEntityGizmo(entity));
-            if (Settings.DEPTH) gizmo.setAlwaysOnTop();
+                drawGizmo(new TrackedEntityGizmo(entity));
+            }
         }
+
+        if (Settings.SHOW_EXPLOSION_BLOCK) {
+            for (Entity entity : minecraft.level.entitiesForRendering()) {
+                if (entity instanceof PrimedTnt) {
+                    double x = Mth.lerp(delta, entity.xo, entity.getX()) - entity.getX();
+                    double y = Mth.lerp(delta, entity.yo, entity.getY()) - entity.getY();
+                    double z = Mth.lerp(delta, entity.zo, entity.getZ()) - entity.getZ();
+                    drawGizmo(new BoxOutlineGizmo(entity.getBoundingBox().move(x, y, z), 0xFF00FFCC));
+                }
+            }
+        }
+    }
+
+    private static void drawGizmo(Gizmo gizmo) {
+        GizmoProperties properties = Gizmos.addGizmo(gizmo);
+        if (Settings.DEPTH) properties.setAlwaysOnTop();
     }
 }
