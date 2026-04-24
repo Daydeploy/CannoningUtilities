@@ -1,9 +1,11 @@
 package me.day.cannoningutilities.features;
 
 import me.day.cannoningutilities.config.Settings;
-import me.day.cannoningutilities.utils.BoxOutlineGizmo;
+import me.day.cannoningutilities.core.EntityType;
+import me.day.cannoningutilities.gizmos.BoxOutlineGizmo;
 import me.day.cannoningutilities.utils.TrackedEntity;
-import me.day.cannoningutilities.utils.TrackedEntityGizmo;
+import me.day.cannoningutilities.gizmos.TrackedEntityGizmo;
+import net.fabricmc.fabric.api.client.rendering.v1.world.WorldRenderContext;
 import net.minecraft.client.Minecraft;
 import net.minecraft.gizmos.Gizmo;
 import net.minecraft.gizmos.GizmoProperties;
@@ -12,6 +14,7 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.item.FallingBlockEntity;
 import net.minecraft.world.entity.item.PrimedTnt;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
 import java.util.UUID;
@@ -39,30 +42,34 @@ public class BreadcrumbsTNT {
 
                 Vec3 position = entity.position();
                 if (!trackedEntity.crumbs.getLast().position().equals(position)) trackedEntity.addCrumb(position);
+
+                trackedEntity.updateBoundingBox(entity.getBoundingBox());
             }
         }
 
     }
 
-    public static void render(float delta) {
+    public static void render(WorldRenderContext context) {
         if (!Settings.ENABLED || minecraft.level == null || entities.isEmpty()) return;
 
-        if (Settings.RENDER_CRUMBS) {
-            for (TrackedEntity entity : entities.values()) {
-                if (entity.crumbs.size() < 2) continue;
+        float delta = minecraft.getDeltaTracker().getGameTimeDeltaPartialTick(true);
+        for (TrackedEntity tracked : entities.values()) {
+            if (Settings.RENDER_CRUMBS && tracked.crumbs.size() >= 2) drawGizmo(new TrackedEntityGizmo(tracked));
 
-                drawGizmo(new TrackedEntityGizmo(entity));
-            }
-        }
-
-        if (Settings.SHOW_EXPLOSION_BLOCK) {
-            for (Entity entity : minecraft.level.entitiesForRendering()) {
+            if (Settings.SHOW_EXPLOSION_BLOCK && tracked.type == EntityType.TNT) {
+                Entity entity = minecraft.level.getEntity(tracked.uuid);
+                AABB box;
                 if (entity instanceof PrimedTnt) {
                     double x = Mth.lerp(delta, entity.xo, entity.getX()) - entity.getX();
                     double y = Mth.lerp(delta, entity.yo, entity.getY()) - entity.getY();
                     double z = Mth.lerp(delta, entity.zo, entity.getZ()) - entity.getZ();
-                    drawGizmo(new BoxOutlineGizmo(entity.getBoundingBox().move(x, y, z), 0xFF00FFCC));
+
+                    box = entity.getBoundingBox().move(x, y, z);
+                } else {
+                    box = tracked.getBoundingBox();
                 }
+
+                drawGizmo(new BoxOutlineGizmo(box, 0xFF00FFCC));
             }
         }
     }

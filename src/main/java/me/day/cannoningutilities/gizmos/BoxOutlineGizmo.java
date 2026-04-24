@@ -1,4 +1,4 @@
-package me.day.cannoningutilities.utils;
+package me.day.cannoningutilities.gizmos;
 
 import me.day.cannoningutilities.config.Settings;
 import net.minecraft.gizmos.Gizmo;

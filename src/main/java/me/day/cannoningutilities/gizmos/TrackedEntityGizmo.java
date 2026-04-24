@@ -1,6 +1,7 @@
-package me.day.cannoningutilities.utils;
+package me.day.cannoningutilities.gizmos;
 
 import me.day.cannoningutilities.config.Settings;
+import me.day.cannoningutilities.utils.TrackedEntity;
 import net.minecraft.gizmos.Gizmo;
 import net.minecraft.gizmos.GizmoPrimitives;
 import net.minecraft.util.ARGB;

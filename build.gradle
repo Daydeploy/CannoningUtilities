@@ -33,7 +33,7 @@ dependencies {
 
     modRuntimeOnly("me.djtheredstoner:DevAuth-fabric:1.2.2")
 
-    def oneConfigModules = ["commands", "config-impl", "events", "hud", "internal", "ui", "utils"]
+    def oneConfigModules = ["commands", "config", "config-impl", "events", "hud", "internal", "ui", "utils"]
 
     for (String module : oneConfigModules) {
         implementation("org.polyfrost.oneconfig:${module}:${project.one_config_version}")

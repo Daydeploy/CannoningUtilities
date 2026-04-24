@@ -3,6 +3,7 @@ package me.day.cannoningutilities.utils;
 import me.day.cannoningutilities.config.Settings;
 import me.day.cannoningutilities.core.EntityType;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
 import java.util.ArrayList;
@@ -16,6 +17,7 @@ public class TrackedEntity {
     public final List<Crumb> crumbs;
     public final long expiryTime;
     public final Vec3 startPosition;
+    private AABB boundingBox;
 
     public TrackedEntity(Entity entity) {
         this.uuid = entity.getUUID();
@@ -23,6 +25,7 @@ public class TrackedEntity {
         this.crumbs = Collections.synchronizedList(new ArrayList<>());
         this.expiryTime = System.currentTimeMillis() + (Settings.REMOVAL_TIME_SECONDS * 1000L);
         this.startPosition = entity.position();
+        this.boundingBox = entity.getBoundingBox();
         this.crumbs.add(new Crumb(entity.position(), System.nanoTime()));
     }
 
@@ -36,5 +39,13 @@ public class TrackedEntity {
 
     public int getColor() {
         return type.color;
+    }
+
+    public AABB getBoundingBox() {
+        return boundingBox;
+    }
+
+    public void updateBoundingBox(AABB box) {
+        this.boundingBox = box;
     }
 }
